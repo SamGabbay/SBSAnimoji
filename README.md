@@ -1,4 +1,4 @@
-# SBSAnimoji
+# Animoki
 
 Fooling around with Apples private framework AvatarKit, the framework used in Messages.app for recording Animoji videos.
 

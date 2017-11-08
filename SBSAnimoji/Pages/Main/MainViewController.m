@@ -299,12 +299,34 @@ static void *SBSPuppetViewRecordingContext = &SBSPuppetViewRecordingContext;
                  
                  NSArray *activityItems = @[exporter.outputURL];
                  UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:activityItems applicationActivities:nil];
+                 
+                 [activityViewController setCompletionWithItemsHandler:^(UIActivityType  _Nullable activityType, BOOL completed, NSArray * _Nullable returnedItems, NSError * _Nullable activityError) {
+                     
+                     if ([activityType isEqualToString:@"com.apple.UIKit.activity.SaveToCameraRoll"]) {
+                         [self showSuccess];
+                     }
+                     
+                 }];
+                 
                  [self presentViewController:activityViewController animated:true completion:nil];
+                 
              });
          }];
     }
     
     
+}
+
+-(void) showSuccess {
+    
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Success" message:@"Your Animoke has been saved to your Camera Roll!" preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction *dismiss = [UIAlertAction actionWithTitle:@"Dismiss" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    
+    }];
+    [alertController addAction:dismiss];
+    
+    [self presentViewController:alertController animated:YES completion:nil];
 }
 
 // Pragma mark: - Private

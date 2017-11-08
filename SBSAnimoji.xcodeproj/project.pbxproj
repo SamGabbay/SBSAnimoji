@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2271BF111FB1784100B65C11 /* SearchViewViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2271BF101FB1784100B65C11 /* SearchViewViewController.m */; };
+		2271BF141FB17F6200B65C11 /* SongObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 2271BF121FB17F6200B65C11 /* SongObject.m */; };
 		7203856D1FB0FA1B00FDEDE6 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 7203853C1FB0FA1A00FDEDE6 /* Localizable.strings */; };
 		7203856E1FB0FA1B00FDEDE6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 7203853D1FB0FA1A00FDEDE6 /* main.m */; };
 		7203856F1FB0FA1B00FDEDE6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7203853F1FB0FA1A00FDEDE6 /* LaunchScreen.storyboard */; };
@@ -20,6 +22,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2271BF0F1FB1784100B65C11 /* SearchViewViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SearchViewViewController.h; sourceTree = "<group>"; };
+		2271BF101FB1784100B65C11 /* SearchViewViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SearchViewViewController.m; sourceTree = "<group>"; };
+		2271BF121FB17F6200B65C11 /* SongObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SongObject.m; sourceTree = "<group>"; };
+		2271BF131FB17F6200B65C11 /* SongObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SongObject.h; sourceTree = "<group>"; };
 		720385211FB0F9D900FDEDE6 /* SBSAnimoji.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SBSAnimoji.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7203853B1FB0FA1A00FDEDE6 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7203853C1FB0FA1A00FDEDE6 /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
@@ -123,6 +129,8 @@
 		720385691FB0FA1A00FDEDE6 /* Application */ = {
 			isa = PBXGroup;
 			children = (
+				2271BF131FB17F6200B65C11 /* SongObject.h */,
+				2271BF121FB17F6200B65C11 /* SongObject.m */,
 				7203856A1FB0FA1A00FDEDE6 /* AppDelegate.h */,
 				7203856B1FB0FA1A00FDEDE6 /* AppDelegate.m */,
 			);
@@ -148,6 +156,8 @@
 				720385641FB0FA1A00FDEDE6 /* MainView.m */,
 				720385651FB0FA1A00FDEDE6 /* MainViewController.h */,
 				720385661FB0FA1A00FDEDE6 /* MainViewController.m */,
+				2271BF0F1FB1784100B65C11 /* SearchViewViewController.h */,
+				2271BF101FB1784100B65C11 /* SearchViewViewController.m */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -228,6 +238,8 @@
 				720385711FB0FA1B00FDEDE6 /* MainView.m in Sources */,
 				72E21EE51FB101BC00F7C115 /* SBSPuppetView.m in Sources */,
 				720385731FB0FA1B00FDEDE6 /* PuppetThumbnailCollectionViewCell.m in Sources */,
+				2271BF141FB17F6200B65C11 /* SongObject.m in Sources */,
+				2271BF111FB1784100B65C11 /* SearchViewViewController.m in Sources */,
 				720385741FB0FA1B00FDEDE6 /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -355,7 +367,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 8NQFWJHC63;
+				DEVELOPMENT_TEAM = E75PFKJV58;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
@@ -374,7 +386,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 8NQFWJHC63;
+				DEVELOPMENT_TEAM = E75PFKJV58;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",

@@ -7,8 +7,17 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <AVFoundation/AVFoundation.h>
+#import <MediaPlayer/MediaPlayer.h>
+#import "SearchViewViewController.h"
 
-@interface MainViewController : UIViewController
+@interface MainViewController : UIViewController <MPMediaPickerControllerDelegate>
+
+@property (nonatomic, strong) AVPlayer *songPlayer;
+@property (nonatomic, strong) NSURL *songPath;
+@property (nonatomic, strong) MPMediaItem *anItem;
+@property (nonatomic, strong) UIView *lyricsView;
+
 
 @end
 

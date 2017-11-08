@@ -11,13 +11,15 @@
 #import "AVTPuppet.h"
 #import "AVTPuppetView.h"
 #import "PuppetThumbnailCollectionViewCell.h"
+#import <objc/runtime.h>
+
+static void *SBSPuppetViewRecordingContext = &SBSPuppetViewRecordingContext;
 
 @interface MainViewController () <SBSPuppetViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate>
 @property (nonatomic, readonly) MainView *contentView;
 @property (nonatomic, strong) NSTimer *durationTimer;
 @property (nonatomic, strong) NSArray *puppetNames;
 @property (nonatomic, assign) BOOL hasExportedMovie;
-@property (nonatomic, assign, getter=isExporting) BOOL exporting;
 @end
 
 @implementation MainViewController
@@ -26,7 +28,7 @@
 
 - (instancetype)init {
     if (self = [super init]) {
-        self.title = NSLocalizedString(@"MAIN_TITLE", @"");
+        self.title = NSLocalizedString(@"Animoke", @"");
         self.puppetNames = [AVTPuppet puppetNames];
     }
     return self;
@@ -56,19 +58,216 @@
     [self.contentView.shareButton addTarget:self action:@selector(share) forControlEvents:UIControlEventTouchUpInside];
     [self showPuppetNamed:self.puppetNames[0]];
     [self.contentView.thumbnailsCollectionView selectItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:0] animated:NO scrollPosition:UICollectionViewScrollPositionNone];
+    [self.contentView.puppetView addObserver:self forKeyPath:@"recording" options:NSKeyValueObservingOptionNew context:&SBSPuppetViewRecordingContext];
+	
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Music" style:UIBarButtonItemStyleDone target:self action:@selector(chooseMusicSource)];
+}
+
+-(void) chooseMusicSource {
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Choose Source" message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    UIAlertAction *appleMusic = [UIAlertAction actionWithTitle:@"Apple Music" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self appleMusic];
+    }];
+    UIAlertAction *soundCloud = [UIAlertAction actionWithTitle:@"SoundCloud" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self findSongs];
+    }];
+    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+
+    }];
+    
+    [alertController addAction:appleMusic];
+    [alertController addAction:soundCloud];
+    [alertController addAction:cancel];
+    [self presentViewController:alertController animated:YES completion:nil];
+}
+
+-(void) appleMusic {
+    MPMediaPickerController *mediaPicker = [[MPMediaPickerController alloc] initWithMediaTypes: MPMediaTypeAnyAudio];                   // 1
+    mediaPicker.delegate = self;
+    [mediaPicker setAllowsPickingMultipleItems:NO];                        // 3
+    mediaPicker.showsItemsWithProtectedAssets = NO;
+    mediaPicker.showsCloudItems = NO;
+    mediaPicker.prompt = NSLocalizedString (@"Add songs to play", "Prompt in media item picker");
+    [self presentViewController:mediaPicker animated:YES completion:nil];    // 4
+}
+
+-(void)mediaPickerDidCancel:(MPMediaPickerController *)mediaPicker {
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+-(void)mediaPicker:(MPMediaPickerController *)mediaPicker didPickMediaItems:(MPMediaItemCollection *)mediaItemCollection {
+    self.anItem = (MPMediaItem *)[mediaItemCollection.items objectAtIndex:0];
+	
+	if (self.anItem.lyrics) {
+		self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Lyrics" style:UIBarButtonItemStyleDone target:self action:@selector(showLyrics)];
+	}
+	
+    if (self.anItem.protectedAsset) {
+        NSLog(@"Can't Play This Song");
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Protected Song" message:@"This song is protected and can not be used in this app." preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *dismiss = [UIAlertAction actionWithTitle:@"Dismiss" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            
+        }];
+        [alertController addAction:dismiss];
+        [self presentViewController:alertController animated:YES completion:nil];
+    } else {
+        NSURL *assetURL = [self.anItem valueForProperty: MPMediaItemPropertyAssetURL];
+        NSLog(@"Picked: %@\n\nPath: %@", mediaItemCollection.items[0].title, assetURL);
+        
+        [self dismissViewControllerAnimated:YES completion:^{
+            AVPlayerItem *playerItem = [[AVPlayerItem alloc] initWithURL:assetURL];
+            self.songPlayer = [[AVPlayer alloc] initWithPlayerItem:playerItem];
+            self.title = mediaItemCollection.items[0].title;
+        }];
+    }
+}
+
+-(void) showLyrics {
+	
+	if (self.lyricsView.superview !=nil) {
+		[UIView animateWithDuration:1.0 delay:0.0 usingSpringWithDamping:0.6 initialSpringVelocity:0.0 options:UIViewAnimationOptionCurveEaseIn animations:^{
+			self.lyricsView.frame = CGRectMake(0, 900, self.contentView.bounds.size.width, 212);
+		} completion:^(BOOL finished) {
+			[self.lyricsView removeFromSuperview];
+		}];
+
+	} else {
+		self.lyricsView = [[UIView alloc] initWithFrame:CGRectMake(0, 900, self.contentView.bounds.size.width, 212)];
+		UITextView *lyricsText = [[UITextView alloc] initWithFrame:self.lyricsView.bounds];
+		[lyricsText setText:self.anItem.lyrics];
+		lyricsText.textAlignment = NSTextAlignmentCenter;
+		lyricsText.font = [UIFont boldSystemFontOfSize:15.0];
+		lyricsText.editable = NO;
+		[self.lyricsView addSubview:lyricsText];
+		[self.contentView addSubview:self.lyricsView];
+		[self.contentView bringSubviewToFront:self.lyricsView];
+		
+		[UIView animateWithDuration:1.0 delay:0.0 usingSpringWithDamping:0.6 initialSpringVelocity:0.0 options:UIViewAnimationOptionCurveEaseIn animations:^{
+			self.lyricsView.frame = CGRectMake(0, 600, self.contentView.bounds.size.width, 212);
+		} completion:^(BOOL finished) {
+			
+		}];
+	}
+
+}
+
+-(void)findSongs {
+	//Finds Songs on SoundCloud
+	NSLog(@"Move to SoundCloud view");	
+	SearchViewViewController *searchView = [[SearchViewViewController alloc] init];
+	searchView.delegate = self;
+	UINavigationController *searchNavigation = [[UINavigationController alloc] initWithRootViewController:searchView];
+	searchView.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+	[self presentViewController:searchNavigation animated:YES completion:nil];
+}
+
+-(void)sendDataToA:(AVPlayer *)audioPlayer
+{
+	NSLog(@"Nah Nah Nah Nah, Yeah... You Are The Music In Me.");
+	self.songPlayer = audioPlayer;
+}
+
+-(void)setTitleForView:(NSString *)songTitle {
+    
+    if (songTitle == nil) {
+        self.title = @"Animoki";
+    } else {
+        self.title = songTitle;
+    }
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
+    if ([keyPath isEqualToString:@"isRecording"] && context == SBSPuppetViewRecordingContext) {
+        NSLog(@"%@", self.contentView.puppetView.isRecording ? @"Recording" : @"Not recording");
+    } else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
+}
+
+- (IBAction)mergeAudioInVideo:(NSURL *)videoURL
+{
+    AVAsset *currentPlayerAsset = self.songPlayer.currentItem.asset;
+    NSURL *appleMusicURL = [(AVURLAsset *)currentPlayerAsset URL];
+    NSURL *audio_url;
+    if (!appleMusicURL) {
+        NSString * musicDir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+       audio_url = [NSURL fileURLWithPath:[musicDir stringByAppendingString:@"/song_chosen.mp3"]];
+    } else {
+        audio_url = appleMusicURL;
+    }
+    
+    AVURLAsset  *audioAsset = [[AVURLAsset alloc]initWithURL:audio_url options:nil];
+    AVAsset *firstAsset = [AVAsset assetWithURL:videoURL];
+    AVAsset *secondAsset = [AVAsset assetWithURL:videoURL];
+    
+    if(firstAsset !=nil && secondAsset!=nil){
+        
+        //Create AVMutableComposition Object.This object will hold our multiple AVMutableCompositionTrack.
+        AVMutableComposition* mixComposition = [[AVMutableComposition alloc] init];
+        
+        //VIDEO TRACK
+        AVMutableCompositionTrack *firstTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeVideo preferredTrackID:kCMPersistentTrackID_Invalid];
+        [firstTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, firstAsset.duration) ofTrack:[[firstAsset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0] atTime:kCMTimeZero error:nil];
+        
+        AVMutableCompositionTrack *secondTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeVideo preferredTrackID:kCMPersistentTrackID_Invalid];
+        [secondTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, secondAsset.duration) ofTrack:[[secondAsset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0] atTime:firstAsset.duration error:nil];
+        
+        //AUDIO TRACK
+        if(audioAsset!=nil){
+            AVMutableCompositionTrack *AudioTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
+            [AudioTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, CMTimeAdd(firstAsset.duration, secondAsset.duration)) ofTrack:[[audioAsset tracksWithMediaType:AVMediaTypeAudio] objectAtIndex:0] atTime:CMTimeMake(1, 10) error:nil];
+        }
+        
+        AVMutableVideoCompositionInstruction * MainInstruction = [AVMutableVideoCompositionInstruction videoCompositionInstruction];
+        MainInstruction.timeRange = CMTimeRangeMake(kCMTimeZero, CMTimeAdd(firstAsset.duration, secondAsset.duration));
+        
+        //FIXING ORIENTATION//
+        
+        AVMutableVideoCompositionLayerInstruction *FirstlayerInstruction = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:firstTrack];
+        
+        [FirstlayerInstruction setOpacity:0.0 atTime:firstAsset.duration];
+        
+        MainInstruction.layerInstructions = [NSArray arrayWithObjects:FirstlayerInstruction,nil];;
+        
+        AVMutableVideoComposition *MainCompositionInst = [AVMutableVideoComposition videoComposition];
+        MainCompositionInst.instructions = [NSArray arrayWithObject:MainInstruction];
+        
+        NSArray *dirPaths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString *docsDir = [dirPaths objectAtIndex:0];
+        NSString *outputFilePath = [docsDir stringByAppendingPathComponent:[NSString stringWithFormat:@"animoji_karaoke.mov"]];
+        NSURL *outputFileUrl = [NSURL fileURLWithPath:outputFilePath];
+        
+        if ([[NSFileManager defaultManager] fileExistsAtPath:outputFilePath])
+            [[NSFileManager defaultManager] removeItemAtPath:outputFilePath error:nil];
+        
+        
+        AVAssetExportSession *exporter = [[AVAssetExportSession alloc] initWithAsset:mixComposition presetName:AVAssetExportPresetHighestQuality];
+        exporter.outputURL = outputFileUrl;
+        exporter.outputFileType = AVFileTypeQuickTimeMovie;
+        exporter.timeRange = CMTimeRangeMake(kCMTimeZero,firstAsset.duration);
+        [exporter exportAsynchronouslyWithCompletionHandler:^
+         {
+             dispatch_async(dispatch_get_main_queue(), ^{
+                 
+                 NSArray *activityItems = @[exporter.outputURL];
+                 UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:activityItems applicationActivities:nil];
+                 [self presentViewController:activityViewController animated:true completion:nil];
+             });
+         }];
+    }
+    
+    
 }
 
 // Pragma mark: - Private
 
 - (void)share {
-    __weak typeof(self) weakSelf = self;
+//    __weak typeof(self) weakSelf = self;
     [self exportMovieIfNecessary:^(NSURL *movieURL) {
         if (movieURL == nil) {
             return;
         }
-        NSArray *activityItems = @[ movieURL ];
-        UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:activityItems applicationActivities:nil];
-        [weakSelf presentViewController:activityViewController animated:true completion:nil];
+		[self mergeAudioInVideo:movieURL];
     }];
 }
 
@@ -77,7 +276,6 @@
     if (self.hasExportedMovie) {
         completion(movieURL);
     } else {
-        self.exporting = YES;
         [self.contentView.activityIndicatorView startAnimating];
         self.contentView.deleteButton.enabled = NO;
         self.contentView.shareButton.hidden = YES;
@@ -87,7 +285,6 @@
             [weakSelf.contentView.activityIndicatorView stopAnimating];
             weakSelf.contentView.deleteButton.enabled = YES;
             weakSelf.contentView.shareButton.hidden = NO;
-            weakSelf.exporting = NO;
             completion(movieURL);
         }];
     }
@@ -104,12 +301,20 @@
     self.contentView.shareButton.hidden = YES;
 }
 
+-(void) playSong {
+	[self.songPlayer play];
+}
+
 - (void)toggleRecording {
     if (self.contentView.puppetView.isRecording) {
+		[self.songPlayer pause];
         [self.contentView.puppetView stopRecording];
+//		[self mergeAndSave];
     } else {
+		[self playSong];
         [self.contentView.puppetView startRecording];
     }
+	
 }
 
 - (void)durationTimerTriggered {
@@ -144,18 +349,9 @@
 }
 
 - (void)startPreview {
-    [self.contentView.previewButton removeTarget:self action:@selector(startPreview) forControlEvents:UIControlEventTouchUpInside];
-    [self.contentView.previewButton addTarget:self action:@selector(stopPreview) forControlEvents:UIControlEventTouchUpInside];
-    [self.contentView.previewButton setImage:[UIImage imageNamed:@"stop-previewing"] forState:UIControlStateNormal];
+    self.contentView.previewButton.hidden = YES;
     [self.contentView.puppetView stopPreviewing];
     [self.contentView.puppetView startPreviewing];
-}
-
-- (void)stopPreview {
-    [self.contentView.previewButton removeTarget:self action:@selector(stopPreview) forControlEvents:UIControlEventTouchUpInside];
-    [self.contentView.previewButton addTarget:self action:@selector(startPreview) forControlEvents:UIControlEventTouchUpInside];
-    [self.contentView.previewButton setImage:[UIImage imageNamed:@"start-previewing"] forState:UIControlStateNormal];
-    [self.contentView.puppetView stopPreviewing];
 }
 
 - (NSURL *)movieURL {
@@ -172,14 +368,14 @@
 
 - (void)puppetViewDidFinishPlaying:(SBSPuppetView *)puppetView {
     if (!puppetView.isRecording) {
-        [self stopPreview];
+        self.contentView.previewButton.hidden = NO;
     }
 }
 
 - (void)puppetViewDidStartRecording:(SBSPuppetView *)puppetView {
     self.hasExportedMovie = NO;
     [self removeExistingMovieFile];
-    [self.contentView.recordButton setImage:[UIImage imageNamed:@"stop-recording"] forState:UIControlStateNormal];
+    [self.contentView.recordButton setImage:[UIImage imageNamed:@"stop"] forState:UIControlStateNormal];
     self.contentView.durationLabel.text = @"00:00";
     self.contentView.durationLabel.hidden = NO;
     self.durationTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(durationTimerTriggered) userInfo:nil repeats:YES];
@@ -190,12 +386,6 @@
 }
 
 - (void)puppetViewDidStopRecording:(SBSPuppetView *)puppetView {
-    if (self.isExporting) {
-        // The callback is called when we start exporting.
-        // It's not intuitive but internally, AVTPuppetView is
-        // calling stopRecording which then triggers this callback.
-        return;
-    }
     [self.durationTimer invalidate];
     self.durationTimer = nil;
     self.contentView.recordButton.hidden = YES;
@@ -203,7 +393,7 @@
     self.contentView.deleteButton.hidden = NO;
     self.contentView.previewButton.hidden = NO;
     self.contentView.durationLabel.hidden = YES;
-    [self.contentView.recordButton setImage:[UIImage imageNamed:@"start-recording"] forState:UIControlStateNormal];
+    [self.contentView.recordButton setImage:[UIImage imageNamed:@"record"] forState:UIControlStateNormal];
     self.contentView.thumbnailsCollectionView.userInteractionEnabled = YES;
     [UIView animateWithDuration:0.3 animations:^{
         self.contentView.thumbnailsCollectionView.alpha = 1;

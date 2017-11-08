@@ -3,7 +3,7 @@
 Fooling around with Apples private framework AvatarKit, the framework used in Messages.app for recording Animoji videos.
 
 ![Screenshot](https://github.com/simonbs/SBSAnimoji/raw/master/screenshot.png)
-![Screenshot of Karaoke](https://github.com/SamGabbay/SBSAnimoji/blob/master/screenshot-karaoke.png)
+![Screenshot of Karaoke](https://github.com/SamGabbay/SBSAnimoji/blob/master/karaoke-screenshot.png)
 
 ### What you get
 

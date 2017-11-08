@@ -97,8 +97,10 @@ static void *SBSPuppetViewRecordingContext = &SBSPuppetViewRecordingContext;
 
 -(void)mediaPicker:(MPMediaPickerController *)mediaPicker didPickMediaItems:(MPMediaItemCollection *)mediaItemCollection {
     self.anItem = (MPMediaItem *)[mediaItemCollection.items objectAtIndex:0];
-	
-	if (self.anItem.lyrics) {
+	NSString *lyrics = self.anItem.lyrics;
+	if ([lyrics isEqualToString:@""]) {
+		self.navigationItem.rightBarButtonItem = nil;
+	} else {
 		self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Lyrics" style:UIBarButtonItemStyleDone target:self action:@selector(showLyrics)];
 	}
 	

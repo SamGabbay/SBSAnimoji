@@ -63,32 +63,43 @@ static void *SBSPuppetViewRecordingContext = &SBSPuppetViewRecordingContext;
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Music" style:UIBarButtonItemStyleDone target:self action:@selector(chooseMusicSource)];
 }
 
+#pragma mark Music Sources
 -(void) chooseMusicSource {
     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Choose Source" message:nil preferredStyle:UIAlertControllerStyleActionSheet];
     UIAlertAction *appleMusic = [UIAlertAction actionWithTitle:@"Apple Music" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         [self appleMusic];
     }];
+    [alertController addAction:appleMusic];
+
     UIAlertAction *soundCloud = [UIAlertAction actionWithTitle:@"SoundCloud" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        [self findSongs];
+        [self searchSoundCloud];
     }];
+    [alertController addAction:soundCloud];
+
+    //YouTube Support Coming Soon
+/*
+    UIAlertAction *youTube = [UIAlertAction actionWithTitle:@"YouTube" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self searchYouTube];
+    }];
+    [alertController addAction:youTube];
+*/
+    
     UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
 
     }];
-    
-    [alertController addAction:appleMusic];
-    [alertController addAction:soundCloud];
     [alertController addAction:cancel];
+    
     [self presentViewController:alertController animated:YES completion:nil];
 }
 
 -(void) appleMusic {
-    MPMediaPickerController *mediaPicker = [[MPMediaPickerController alloc] initWithMediaTypes: MPMediaTypeAnyAudio];                   // 1
+    MPMediaPickerController *mediaPicker = [[MPMediaPickerController alloc] initWithMediaTypes: MPMediaTypeAnyAudio];
     mediaPicker.delegate = self;
-    [mediaPicker setAllowsPickingMultipleItems:NO];                        // 3
+    [mediaPicker setAllowsPickingMultipleItems:NO];
     mediaPicker.showsItemsWithProtectedAssets = NO;
     mediaPicker.showsCloudItems = NO;
     mediaPicker.prompt = NSLocalizedString (@"Add songs to play", "Prompt in media item picker");
-    [self presentViewController:mediaPicker animated:YES completion:nil];    // 4
+    [self presentViewController:mediaPicker animated:YES completion:nil];
 }
 
 -(void)mediaPickerDidCancel:(MPMediaPickerController *)mediaPicker {
@@ -153,15 +164,50 @@ static void *SBSPuppetViewRecordingContext = &SBSPuppetViewRecordingContext;
 
 }
 
--(void)findSongs {
+-(void)searchSoundCloud {
 	//Finds Songs on SoundCloud
-	NSLog(@"Move to SoundCloud view");	
 	SearchViewViewController *searchView = [[SearchViewViewController alloc] init];
 	searchView.delegate = self;
 	UINavigationController *searchNavigation = [[UINavigationController alloc] initWithRootViewController:searchView];
 	searchView.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
 	[self presentViewController:searchNavigation animated:YES completion:nil];
 }
+
+-(void)searchYouTube {
+    YouTubeViewController *youTubeController = [[YouTubeViewController alloc] init];
+    youTubeController.delegate = self;
+    [self.navigationController pushViewController:youTubeController animated:YES];
+}
+
+-(void)sendVideoURL:(NSURL *)videoURL {
+    NSLog(@"Got YouTube Link: %@", videoURL);
+    NSURL *convertYouTube = [NSURL URLWithString:[NSString stringWithFormat:@"www.convertmp3.io/fetch/?video=%@", videoURL]];
+    
+    NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL:convertYouTube];
+    //create the Method "GET"
+    [urlRequest setHTTPMethod:@"GET"];
+    NSURLSession *session = [NSURLSession sharedSession];
+    
+    NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error)
+    {
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+        if(httpResponse.statusCode == 200)
+        {
+            NSError *parseError = nil;
+            NSDictionary *responseDictionary = [NSJSONSerialization JSONObjectWithData:data options:0 error:&parseError];
+            NSLog(@"The response is - %@",responseDictionary);
+        }
+        else
+        {
+            NSLog(@"Error");
+        }
+    }];
+    [dataTask resume];
+    
+    
+}
+
+#pragma mark end Music Sources
 
 -(void)sendDataToA:(AVPlayer *)audioPlayer
 {
@@ -262,9 +308,7 @@ static void *SBSPuppetViewRecordingContext = &SBSPuppetViewRecordingContext;
 }
 
 // Pragma mark: - Private
-
 - (void)share {
-//    __weak typeof(self) weakSelf = self;
     [self exportMovieIfNecessary:^(NSURL *movieURL) {
         if (movieURL == nil) {
             return;
@@ -404,7 +448,6 @@ static void *SBSPuppetViewRecordingContext = &SBSPuppetViewRecordingContext;
 }
 
 // Pragma mark: - UICollectionViewDataSource
-
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
     return 1;
 }

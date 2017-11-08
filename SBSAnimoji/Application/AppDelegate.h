@@ -7,6 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "SearchViewViewController.h"
+#import "YouTubeViewController.h"
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 

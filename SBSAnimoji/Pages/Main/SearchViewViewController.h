@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "SongObject.h"
 #import "MainViewController.h"
+#import "MBProgressHUD.h"
 
 @protocol senddataProtocol <NSObject>
 
@@ -22,8 +23,10 @@
 @property (strong, nonatomic) UITableView *tableView;
 @property (strong, nonatomic) UISearchController *searchController;
 @property (nonatomic, strong) NSMutableArray *songsArray;
-@property(nonatomic,assign)id delegate;
+@property (nonatomic, assign) id delegate;
 @property (nonatomic, strong) AVPlayer *songPlayer;
 @property (nonatomic, strong) NSURLSession *session;
 @property (nonatomic, strong) NSString *songTitle;
+@property (nonatomic, strong) MBProgressHUD *hud;
+
 @end

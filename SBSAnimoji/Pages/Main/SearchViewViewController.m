@@ -83,6 +83,10 @@
 	self.session = [NSURLSession sessionWithConfiguration:configuration delegate:self delegateQueue:nil];
 	NSURLSessionDownloadTask *dlTask = [self.session downloadTaskWithRequest:request];
 	[dlTask resume];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+        self.hud.animationType = MBProgressHUDModeDeterminate;
+    });
 }
 
 -(void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite
@@ -90,6 +94,7 @@
 	CGFloat percentDone = (double)totalBytesWritten/(double)totalBytesExpectedToWrite;
 	dispatch_async(dispatch_get_main_queue(), ^{
 		//Update the progress view
+        self.hud.progress = percentDone;
 		float progressFloat = percentDone*100;
 		NSLog(@"Download: %f", progressFloat);
 	});
@@ -98,6 +103,10 @@
 
 -(void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location
 {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.hud hideAnimated:YES];
+    });
+    
 	// Either move the data from the location to a permanent location, or do something with the data at that location.
 	//	let fileSize = try! NSFileManager.defaultManager().attributesOfItemAtPath(fileURL.path!)[NSFileSize]!.longLongValue
 	[self removeSong:@"song_chosen.mp3"];

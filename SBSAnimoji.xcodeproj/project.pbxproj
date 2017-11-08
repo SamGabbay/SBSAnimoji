@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		2271BF111FB1784100B65C11 /* SearchViewViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2271BF101FB1784100B65C11 /* SearchViewViewController.m */; };
 		2271BF141FB17F6200B65C11 /* SongObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 2271BF121FB17F6200B65C11 /* SongObject.m */; };
+		228677811FB3600600EBC319 /* YouTubeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 228677801FB3600600EBC319 /* YouTubeViewController.m */; };
+		228677841FB367A200EBC319 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 228677821FB367A100EBC319 /* MBProgressHUD.m */; };
 		7203856D1FB0FA1B00FDEDE6 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 7203853C1FB0FA1A00FDEDE6 /* Localizable.strings */; };
 		7203856E1FB0FA1B00FDEDE6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 7203853D1FB0FA1A00FDEDE6 /* main.m */; };
 		7203856F1FB0FA1B00FDEDE6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7203853F1FB0FA1A00FDEDE6 /* LaunchScreen.storyboard */; };
@@ -26,6 +28,10 @@
 		2271BF101FB1784100B65C11 /* SearchViewViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SearchViewViewController.m; sourceTree = "<group>"; };
 		2271BF121FB17F6200B65C11 /* SongObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SongObject.m; sourceTree = "<group>"; };
 		2271BF131FB17F6200B65C11 /* SongObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SongObject.h; sourceTree = "<group>"; };
+		2286777F1FB3600600EBC319 /* YouTubeViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = YouTubeViewController.h; sourceTree = "<group>"; };
+		228677801FB3600600EBC319 /* YouTubeViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YouTubeViewController.m; sourceTree = "<group>"; };
+		228677821FB367A100EBC319 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
+		228677831FB367A200EBC319 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
 		720385211FB0F9D900FDEDE6 /* SBSAnimoji.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SBSAnimoji.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7203853B1FB0FA1A00FDEDE6 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7203853C1FB0FA1A00FDEDE6 /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
@@ -129,6 +135,8 @@
 		720385691FB0FA1A00FDEDE6 /* Application */ = {
 			isa = PBXGroup;
 			children = (
+				228677831FB367A200EBC319 /* MBProgressHUD.h */,
+				228677821FB367A100EBC319 /* MBProgressHUD.m */,
 				2271BF131FB17F6200B65C11 /* SongObject.h */,
 				2271BF121FB17F6200B65C11 /* SongObject.m */,
 				7203856A1FB0FA1A00FDEDE6 /* AppDelegate.h */,
@@ -158,6 +166,8 @@
 				720385661FB0FA1A00FDEDE6 /* MainViewController.m */,
 				2271BF0F1FB1784100B65C11 /* SearchViewViewController.h */,
 				2271BF101FB1784100B65C11 /* SearchViewViewController.m */,
+				2286777F1FB3600600EBC319 /* YouTubeViewController.h */,
+				228677801FB3600600EBC319 /* YouTubeViewController.m */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -237,8 +247,10 @@
 				720385721FB0FA1B00FDEDE6 /* MainViewController.m in Sources */,
 				720385711FB0FA1B00FDEDE6 /* MainView.m in Sources */,
 				72E21EE51FB101BC00F7C115 /* SBSPuppetView.m in Sources */,
+				228677811FB3600600EBC319 /* YouTubeViewController.m in Sources */,
 				720385731FB0FA1B00FDEDE6 /* PuppetThumbnailCollectionViewCell.m in Sources */,
 				2271BF141FB17F6200B65C11 /* SongObject.m in Sources */,
+				228677841FB367A200EBC319 /* MBProgressHUD.m in Sources */,
 				2271BF111FB1784100B65C11 /* SearchViewViewController.m in Sources */,
 				720385741FB0FA1B00FDEDE6 /* AppDelegate.m in Sources */,
 			);

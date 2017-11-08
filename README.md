@@ -10,6 +10,8 @@ Fooling around with Apples private framework AvatarKit, the framework used in Me
 - Share your Animoji videos with the native share sheet.
 - Export videos to your photo library from the native sheet sheet.
 - An example of how to use Apples AvatarKit.
+- Sing along with your favorite songs from your Music Library or SoundCloud.
+- Have help from Lyrics while recording.
 
 ### What you don't get
 
